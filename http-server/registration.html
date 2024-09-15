@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+<style>
+        
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* Style for the form container */
+#form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for form headers */
+#form h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+
+/* Style for form inputs */
+input[type="text"],
+input[type="email"],
+input[type="date"],
+input[type="checkbox"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Style for the submit button */
+button[type="submit"] {
+    background-color: #5cb85c;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* Hover effect for the submit button */
+button[type="submit"]:hover {
+    background-color: #4cae4c;
+}
+
+/* Style for the entries section */
+#entries {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for entries table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+td {
+    background-color: #fff;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+    </style>
+</head>
+<body>
+    <div id="formm">
+        
+        <form id="form">
+            <h1 style="text-align: center;text-decoration: underline;">Registration Form</h1>
+            <label for="name">Name </label>
+            <input type="text" id="name" placeholder="enter your name" required> <br> <br>
+            <label for="email">Email </label>
+            <input type="email"  id="email" placeholder="enter your email" required> <br> <br>
+            <label for="password">Password</label>
+            <input type="text" id="password" placeholder="enter password" required> <br> <br>
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob"  required> <br> <br>
+            <input type="checkbox" id="Accept terms"  required>Accept Terms & Conditions</input> <br><br>
+            <button type="submit">Submit</button>
+        </form>
+    </div> <br>
+    <div id="entries">
+        <h1 style="text-align: center;text-decoration: underline;">Entries</h1> <br>
+        <table id="tabel">
+            <tr>
+                <th>
+                    Name 
+                </th>
+                <th>
+                    Email 
+                </th>
+                <th>
+                    Password 
+                </th>
+                <th>dob</th>
+                <th>
+                    Accepted terms? 
+                </th>
+            </tr>
+        </table>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
+  const entriesTable = document.getElementById("tabel");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const dob = document.getElementById("dob").value;
+    const act = document.getElementById("Accept terms").checked;
+    if (!isvalidDob(dob)) {
+      alert("age must be between 18 and 55 years old.");
+      return;
+    }
+    const entries = JSON.parse(localStorage.getItem("entries")) || [];
+    entries.push({ name, email, password, dob, act });
+    localStorage.setItem("entries", JSON.stringify(entries));
+    updateTable();
+    form.reset();
+  });
+  function isvalidDob(dob) {
+    const today = new Date();
+    const birthdate = new Date(dob);
+    const age = today.getFullYear() - birthdate.getFullYear();
+    const monthdiff = today.getMonth() - birthdate.getMonth();
+    if (
+      monthdiff < 0 ||
+      (monthdiff === 0 && today.getDate() < birthdate.getDate())
+    ) {
+      age--;
+    }
+    return age >= 18 && age <= 55;
+  }
+  function updateTable() {
+    const entries = JSON.parse(localStorage.getItem("entries")) || [];
+    entriesTable.innerHTML = `
+        <tr>
+           <th>Name</th>
+           <th>Email</th>
+           <th>Password</th>
+           <th>Dob</th>
+           <th>Accepted terms?</th>
+        </tr>
+      `;
+    entries.forEach((entry) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+         <td>${entry.name}</td>
+         <td>${entry.email}</td>
+         <td>${entry.password}</td>
+         <td>${entry.dob}</td>
+         <td>${entry.act ? "true" : "false"}</td>
+        `;
+      entriesTable.appendChild(row);
+    });
+  }
+  updateTable();
+});
+    </script>
+</body>
+</html>
