@@ -17,7 +17,7 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, { "Content-Type": "text/html" });
       res.end(content);
     });
-  } else if (req.url === "/projects") {
+  } else if (req.url === "/project") {
     fs.readFile(path.join(__dirname, "project.html"), (err, content) => {
       if (err) throw err;
       res.writeHead(200, { "Content-Type": "text/html" });
