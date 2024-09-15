@@ -2,6 +2,9 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const minimist = require("minimist");
+app.get("/registration", (req, res) => {
+  res.sendFile(__dirname + "/registration.html");
+});
 const args = minimist(process.argv.slice(2));
 const port = args.port || 3000;
 const server = http.createServer((req, res) => {
