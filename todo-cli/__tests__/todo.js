@@ -22,7 +22,7 @@ describe("Todo List Test Suite", () => {
   test("should retrieve overdue todos", () => {
     todos.add({
       title: "Overdue todo",
-      dueDate: "2024-10-07",
+      dueDate: "2024-10-07", // Set to a date before today
       completed: false,
     });
     todos.add({ title: "Due today", dueDate: "2024-10-08", completed: false });

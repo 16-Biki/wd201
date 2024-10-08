@@ -1,6 +1,13 @@
 const todoList = () => {
   let all = [];
 
+  const formattedDate = (d) => {
+    return d.toISOString().split("T")[0];
+  };
+
+  const dateToday = new Date();
+  const today = formattedDate(dateToday); // Define 'today'
+
   const add = (todoItem) => {
     all.push(todoItem);
   };
@@ -44,4 +51,4 @@ const todoList = () => {
   };
 };
 
-module.exports = todoList;
+module.exports = todoList; // Export the todoList function
