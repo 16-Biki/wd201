@@ -1,13 +1,21 @@
 {
+  "name": "todo-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "prepare": "husky"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
+    "express": "^4.21.1",
     "pg": "^8.13.0",
     "sequelize": "^6.37.4"
   },
   "devDependencies": {
     "husky": "^9.1.6",
     "sequelize-cli": "^6.6.2"
-  },
-  "scripts": {
-    "prepare": "husky"
   }
 }

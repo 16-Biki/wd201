@@ -1,34 +1,88 @@
 const request = require("supertest");
-const app = require("../app");
-const { Todo } = require("../models");
 
-describe("Todo API", () => {
+const db = require("../models/index");
+const app = require("../app");
+
+let server, agent;
+
+describe("Todo Application", function () {
   beforeAll(async () => {
-    // Add a test todo to delete later
-    await Todo.create({
-      title: "Test Todo",
-      dueDate: new Date(),
+    await db.sequelize.sync({ force: true });
+    server = app.listen(3000, () => {});
+    agent = request.agent(server);
+  });
+
+  afterAll(async () => {
+    try {
+      await db.sequelize.close();
+      await server.close();
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  test("Creates a todo and responds with json at /todos POST endpoint", async () => {
+    const response = await agent.post("/todos").send({
+      title: "Buy milk",
+      dueDate: new Date().toISOString(),
       completed: false,
     });
+    expect(response.statusCode).toBe(200);
+    expect(response.header["content-type"]).toBe(
+      "application/json; charset=utf-8"
+    );
+    const parsedResponse = JSON.parse(response.text);
+    expect(parsedResponse.id).toBeDefined();
   });
 
-  test("Should delete a todo by ID", async () => {
-    // Fetch a todo to get its ID
-    const todos = await Todo.findAll();
-    const todoId = todos[0].id;
+  test("Marks a todo with the given ID as complete", async () => {
+    const response = await agent.post("/todos").send({
+      title: "Buy milk",
+      dueDate: new Date().toISOString(),
+      completed: false,
+    });
+    const parsedResponse = JSON.parse(response.text);
+    const todoID = parsedResponse.id;
 
-    const response = await request(app).delete(`/todos/${todoId}`);
-    expect(response.statusCode).toBe(200);
-    expect(response.text).toBe("true");
+    expect(parsedResponse.completed).toBe(false);
 
-    // Check if the todo is actually deleted
-    const todo = await Todo.findByPk(todoId);
-    expect(todo).toBeNull();
+    const markCompleteResponse = await agent
+      .put(`/todos/${todoID}/markASCompleted`)
+      .send();
+    const parsedUpdateResponse = JSON.parse(markCompleteResponse.text);
+    expect(parsedUpdateResponse.completed).toBe(true);
   });
 
-  test("Should return false if the todo doesn't exist", async () => {
-    const response = await request(app).delete("/todos/99999");
-    expect(response.statusCode).toBe(200);
-    expect(response.text).toBe("false");
+  test("Fetches all todos in the database using /todos endpoint", async () => {
+    await agent.post("/todos").send({
+      title: "Buy xbox",
+      dueDate: new Date().toISOString(),
+      completed: false,
+    });
+    await agent.post("/todos").send({
+      title: "Buy ps3",
+      dueDate: new Date().toISOString(),
+      completed: false,
+    });
+    const response = await agent.get("/todos");
+    const parsedResponse = JSON.parse(response.text);
+
+    expect(parsedResponse.length).toBe(4);
+    expect(parsedResponse[3]["title"]).toBe("Buy ps3");
+  });
+
+  test("Deletes a todo with the given ID if it exists and sends a boolean response", async () => {
+    const response = await agent.post("/todos").send({
+      title: "Delete this todo",
+      dueDate: new Date().toISOString(),
+      completed: false,
+    });
+    const parsedResponse = JSON.parse(response.text);
+    const todoID = parsedResponse.id;
+    const deleteResponse = await agent.delete(`/todos/${todoID}`).send();
+    const parsedDeleteResponse = JSON.parse(deleteResponse.text);
+    expect(parsedDeleteResponse).toBe(true);
+    const getDeletedTodoResponse = await agent.get(`/todos/${todoID}`);
+    expect(getDeletedTodoResponse.statusCode).toBe(404);
   });
 });
